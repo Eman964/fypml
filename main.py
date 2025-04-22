@@ -13,8 +13,8 @@ app.add_middleware(
 )
 
 # Load models
-sales_model = joblib.load("models/yearly_sales_model.pkl")
-profit_model = joblib.load("models/profit_model.pkl")
+sales_model = joblib.load("model/yearly_sales_model.pkl")
+profit_model = joblib.load("model/profit_model.pkl")
 
 @app.post("/predict")
 async def predict(request: Request):
