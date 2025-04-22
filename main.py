@@ -1,26 +1,35 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import pandas as pd
-from pydantic import BaseModel
 
-# Load the pre-trained model
-model = joblib.load('sales_model.pkl')
-
-# Create a FastAPI app instance
 app = FastAPI()
 
-# Define input data model
-class ProductData(BaseModel):
-    Category: str
-    Used_For: str
-    Selling_Price: float
-    COG_Expenses: float
-    Likes: int
-    Dislikes: int
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/predict-sales")
-async def predict_sales(data: ProductData):
-    # Convert input data to DataFrame for model prediction
-    input_data = pd.DataFrame([data.dict()])
-    prediction = model.predict(input_data)
-    return {"Yearly_Sales": prediction[0]}
+# Load models
+sales_model = joblib.load("models/yearly_sales_model.pkl")
+profit_model = joblib.load("models/profit_model.pkl")
+
+@app.post("/predict")
+async def predict(request: Request):
+    data = await request.json()
+
+    input_df = pd.DataFrame([data], columns=[
+        "Category", "Used For", "Selling Price (USD)",
+        "COG + Expenses (USD)", "likes", "dislikes"
+    ])
+
+    predicted_sales = sales_model.predict(input_df)[0]
+    input_df["Predicted Yearly Sales"] = predicted_sales
+    predicted_profit = profit_model.predict(input_df)[0]
+
+    return {
+        "Predicted Yearly Sales": predicted_sales,
+        "Predicted Profit": predicted_profit
+    }
