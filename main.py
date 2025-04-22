@@ -17,8 +17,8 @@ app.add_middleware(
 )
 
 # Load the trained models
-sales_model = joblib.load('model/yearly_sales_model.pkl')
-profit_model = joblib.load('model/profit_model.pkl')
+sales_model = joblib.load('model/sales_model (1).pkl')
+profit_model = joblib.load('model/profit_model (1).pkl')
 
 # Define preprocessing steps for prediction (matching the original preprocessing)
 numerical_features = ['Selling Price (USD)', 'COG + Expenses (USD)', 'likes', 'dislikes']
